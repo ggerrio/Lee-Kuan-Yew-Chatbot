@@ -1,0 +1,40 @@
+# Version control & virtual environments
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Node / Frontend development artifacts (backend container does not need frontend source)
+node_modules
+dist
+src
+.prettierrc
+eslint.config.js
+index.html
+package.json
+package-lock.json
+postcss.config.cjs
+tailwind.config.cjs
+tsconfig*.json
+vite.config.ts
+components.json
+
+# Raw PDF knowledge files (already pre-computed into processed/embeddings)
+knowledge/
+processed/chunks/
+processed/metadata/
+
+# Logs & test cache
+logs/
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local database (auto-created on startup)
+lky_chatbot.db
+
