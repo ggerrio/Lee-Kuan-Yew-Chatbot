@@ -62,113 +62,94 @@ sequenceDiagram
 ```
 
 ### Detailed Pipeline Walkthrough:
-1. **Client Ingress**: The user submits a prompt via the React/Vite interface ([`src/api/chatApi.ts`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/src/api/chatApi.ts#L22-L33)).
-2. **Gateway Validation & Non-Blocking Lifespan**: FastAPI validates payload schema via Pydantic v2 in [`app/api/v1/routers/chat.py`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/api/v1/routers/chat.py). The server boots in $<50\text{ ms}$ with asynchronous background warming.
-3. **Query Sanitization**: Noise reduction regex in [`chat_orchestrator.py`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/chat/service/chat_orchestrator.py#L39-L50) strips trailing punctuation spikes (`???`, `!!!`) to maintain clean semantic vector representations.
-4. **Dense Query Embedding**: `BAAI/bge-small-en-v1.5` compiles the query into a normalized 384-dimensional dense vector in [`query_embedder.py`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/retrieval/query_embedder/query_embedder.py#L21-L34).
-5. **Vector Matrix Dot-Product**: [`LocalVectorRetriever`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/retrieval/vector_search/qdrant_retriever.py#L81-L146) performs vectorized BLAS matrix multiplication:
+1. **Client Ingress**: The user submits a prompt via the React/Vite Archival Editorial interface ([`src/api/chatApi.ts`](./src/api/chatApi.ts)).
+2. **Gateway Validation & Non-Blocking Lifespan**: FastAPI validates payload schema via Pydantic v2 in [`app/api/v1/routers/chat.py`](./app/api/v1/routers/chat.py) (served via [`api/index.py`](./api/index.py) on Vercel Serverless Functions or Uvicorn in Docker).
+3. **Query Sanitization**: Noise reduction regex in [`chat_orchestrator.py`](./app/chat/service/chat_orchestrator.py) strips trailing punctuation spikes (`???`, `!!!`) to maintain clean semantic vector representations.
+4. **Dense Query Embedding**: `BAAI/bge-small-en-v1.5` compiles the query into a normalized 384-dimensional dense vector in [`query_embedder.py`](./app/retrieval/query_embedder/query_embedder.py) and [`embedder.py`](./app/ingestion/embeddings/embedder.py) (utilizing our custom zero-dependency `NumpyBgeEmbedder` 12-layer BERT `.safetensors` engine on serverless or `SentenceTransformers` locally).
+5. **Vector Matrix Dot-Product**: [`LocalVectorRetriever`](./app/retrieval/vector_search/qdrant_retriever.py) performs vectorized BLAS matrix multiplication:
    $$\text{Scores} = \mathbf{M}_{(5772 \times 384)} \cdot \mathbf{v}_{(384 \times 1)}$$
    Yielding all 5,772 cosine similarity scores in **$< 1.5\text{ ms}$**.
 6. **Bifurcated Guardrail Evaluation**:
    - **Similarity Gate**: If $\max(\text{score}) < 0.35$ and query is historical, return immediate calibrated refusal.
    - **Temporal Post-2015 Gate**: If the query touches events after March 2015 (e.g. COVID-19, Generative AI, Lawrence Wong, Trump/Biden), trigger an explicit historical boundary caveat before synthesis.
-7. **Context Token Budgeting**: [`ContextBuilder`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/rag/context_builder/context_builder.py#L25-L68) constructs a strictly structured context prompt with a hard 3,000 token limit to prevent context pollution.
-8. **Generation via Gemini**: [`GeminiService`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/chat/service/gemini_service.py#L29-L75) generates the response using `gemini-3.5-flash-lite` configured with low temperature ($T=0.3$) for disciplined grounding.
+7. **Context Token Budgeting**: [`ContextBuilder`](./app/rag/context_builder/context_builder.py) constructs a strictly structured context prompt with a hard 3,000 token limit to prevent context pollution.
+8. **Generation via Gemini**: [`GeminiService`](./app/chat/service/gemini_service.py) generates the response using `gemini-3.5-flash-lite` configured with low temperature ($T=0.3$) for disciplined grounding.
 9. **Citation Integrity Enforcement**: Citations are derived exclusively from chunks that passed the token budget filter, guaranteeing 100% verified document title, publication year, and exact page numbers.
 
 ---
 
-## 3. "WHY NOT USE THIS?" — Architecture Decision Records (ADR)
+## 3. "WHY NOT USE THIS?" — Pragmatic Architecture Decisions (ADR)
 
-As a Senior AI Engineer, architecture is defined as much by **what you deliberately choose NOT to build** as what you build. Below are the definitive engineering trade-offs:
+Because this project is built for a technical assessment / engineering challenge, our primary guiding principle is **pragmatism and cost efficiency (\$0 infrastructure cost)**—matching the right tool to the actual scale of the problem rather than paying for unnecessary cloud services:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
 │               ENGINEERING TRADE-OFFS & DECISION MATRIX                 │
 ├───────────────────────┬────────────────────────┬───────────────────────┤
-│ Considered Technology │ Chosen Architecture    │ Strategic Rationale   │
+│ Considered Technology │ Chosen Architecture    │ Honest Rationale      │
 ├───────────────────────┼────────────────────────┼───────────────────────┤
-│ External Vector DB    │ In-Memory NumPy Matrix │ 1.5ms vs 120ms latency │
-│ (Pinecone / Qdrant)   │ (.npz Compressed)      │ $0 cost, zero outage  │
+│ External Vector DB    │ In-Memory NumPy Matrix │ $0 cost for a test    │
+│ (Pinecone / Qdrant)   │ (.npz Compressed)      │ project & faster      │
 ├───────────────────────┼────────────────────────┼───────────────────────┤
-│ LangChain /           │ Clean Modular Python   │ Zero dependency bloat │
-│ LlamaIndex Frameworks │ Service Layer          │ Full prompt control   │
+│ Paid Container Hosts  │ Unified Vercel         │ 100% free tier, no    │
+│ (Railway / Render)    │ Serverless + Static UI │ expiring trial URLs   │
 ├───────────────────────┼────────────────────────┼───────────────────────┤
-│ Unconstrained LLM /   │ Grounded RAG +         │ Eliminates historical │
-│ System Prompt Only    │ Hard Threshold Gate    │ hallucination (0.35)  │
+│ LangChain /           │ Clean Modular Python   │ Easier to debug &     │
+│ LlamaIndex Frameworks │ Service Layer          │ keeps bundle small    │
 ├───────────────────────┼────────────────────────┼───────────────────────┤
-│ OpenAI / Cohere Cloud │ BAAI/bge-small-en-v1.5 │ Deterministic local,  │
-│ Embeddings            │ (384-dim, Open Weights)│ zero rate-limit risks │
+│ Unconstrained LLM /   │ Grounded RAG +         │ Prevents fake quotes  │
+│ System Prompt Only    │ Hard Threshold Gate    │ & hallucinations      │
 ├───────────────────────┼────────────────────────┼───────────────────────┤
-│ Heavy Frontier Models │ Google Gemini          │ Sub-second TTFT,      │
-│ (GPT-4o / Claude-3.5) │ 3.5 Flash-Lite         │ High ROI & token budg │
+│ Paid Cloud Embeddings │ BAAI/bge-small-en-v1.5 │ Open-source, free,    │
+│ (OpenAI / Cohere)     │ (384-dim, Open Weights)│ no API billing needed │
 ├───────────────────────┼────────────────────────┼───────────────────────┤
-│ Raw JSON Embeddings   │ Compressed .npz +      │ 8.2MB vs 72MB RAM,    │
-│ (ASCII floats)        │ Compact Metadata       │ 5ms load vs 12s parse │
+│ Expensive Flagship    │ Google Gemini          │ Free tier friendly,   │
+│ LLMs (GPT-4o / Opus)  │ 3.5 Flash-Lite         │ fast response time    │
 └───────────────────────┴────────────────────────┴───────────────────────┘
 ```
 
-### ADR-01: Why NOT an External Managed Vector Database (Pinecone, Qdrant Cloud, Milvus)?
-* **The Math**:
-  $$\text{Corpus Size} = 5,772 \text{ chunks} \times 384 \text{ dimensions} \times 4 \text{ bytes (float32)} = 8.86 \text{ MB}$$
-* **Network Latency vs In-Memory Compute**:
-  - Pinecone/Qdrant Cloud over HTTPS: **$45\text{ ms} - 150\text{ ms}$** roundtrip network latency per user query, plus cold-start connection pooling overhead.
-  - In-Memory NumPy BLAS `np.dot`: **$1.2\text{ ms}$** latency locally on standard CPU.
-* **Failure Surface & Reliability**:
-  - External databases introduce billing gates, cloud outages, API token invalidations, and VPC peering complexities.
-  - The in-memory matrix is 100% self-contained, reproducible, zero-cost, and immune to third-party network failures.
-* **Verdict**: For corpora under 100,000 vectors, provisioning a standalone vector database cluster is premature optimization and architectural overhead.
+### ADR-01: Why NOT an External Vector Database (Pinecone, Qdrant Cloud, Milvus)?
+* **Honest Reason (Cost & Practicality)**:
+  - Since this is an evaluation/test project with only **5,772 chunks** ($\approx 8.2\text{ MB}$ total), spinning up a paid cloud vector database or managing an external Qdrant/Pinecone cluster is unnecessary cost and hassle.
+  - Loading the vectors directly from a local `.npz` file into NumPy (`np.dot`) costs **\$0**, takes ~1.5ms per search, and never goes offline due to expired cloud trials.
 
 ---
 
-### ADR-02: Why NOT Heavy Orchestration Frameworks (LangChain / LlamaIndex)?
-* **The Dependency Bloat Problem**:
-  - LangChain pulls in $>250$ transitive dependencies, leading to circular import nightmares, breaking changes across minor versions, and massive container image sizes ($>1.5\text{ GB}$).
-* **Prompt Leakage & Opaque Abstractions**:
-  - Heavy frameworks obscure what is injected into the LLM context through multi-layered wrappers (`ConversationalRetrievalChain`), making precise citation tracking and token budgeting unpredictable.
-* **Verdict**: A bespoke 5-module pipeline (`QueryEmbedder` $\rightarrow$ `LocalVectorRetriever` $\rightarrow$ `Post2015Detector` $\rightarrow$ `ContextBuilder` $\rightarrow$ `GeminiService`) provides complete determinism, instant unit-testability, and zero unneeded framework overhead.
+### ADR-02: Why NOT Paid Container Hosting (Railway, Render, Paid Cloud VMs)?
+* **Honest Reason (Zero-Cost Permanent Hosting)**:
+  - Free-tier container platforms today either expire after a 7-day trial (Railway), reject cards/sleep aggressively (Render), or rotate preview URLs every 60 minutes (Back4App sandbox). Paying monthly server costs just to keep a submission project online is not practical.
+  - By hosting **both the React frontend and the FastAPI backend together on Vercel's free tier** (using lightweight NumPy inference instead of heavy 800MB PyTorch packages so it fits inside Vercel's 225MB serverless limit), the entire app runs for **\$0 forever** under a single permanent URL with zero CORS issues.
 
 ---
 
-### ADR-03: Why NOT a Prompt-Only Persona (Without RAG Grounding)?
-* **The Hallucination Failure**:
-  - When raw LLMs are asked: *"What was your policy regarding the Barisan Sosialis in 1963?"*, ungrounded models hallucinate speeches, confuse dates with 1965, or generate generic diplomatic platitudes.
-* **The Accountability Test**:
-  - In diplomatic history and policy assessment, answers must be back-referenced to page numbers and exact memoir chapters. A prompt-only approach cannot provide verifiable page citations.
-* **Verdict**: Hard similarity scoring threshold ($0.35$) enforces a strict contract: **grounded answer with source citations or calibrated refusal**.
+### ADR-03: Why NOT Heavy Frameworks (LangChain / LlamaIndex)?
+* **Honest Reason (Simplicity & Bundle Size)**:
+  - For a straightforward RAG pipeline (embed query $\rightarrow$ search chunks $\rightarrow$ build prompt $\rightarrow$ call Gemini), LangChain adds hundreds of megabytes of extra dependencies that would break serverless size limits and make debugging harder. Writing the 5 steps directly in plain Python is cleaner and much lighter.
 
 ---
 
-### ADR-04: Why NOT Pure Dense Vector Search Without Temporal Gating?
-* **Semantic Drift on Modern Queries**:
-  - If a user asks: *"What do you think about ChatGPT, Ukraine, or COVID-19 vaccines?"*, pure vector similarity matches words like *"virus"*, *"technology"*, or *"crisis"* to unrelated historical passages from the 1970s.
-  - The model would then attempt to synthesize an answer as if Lee Kuan Yew experienced modern events.
-* **The Temporal Guardrail**:
-  - `Post2015Detector` detects post-2015 entities and years $\ge 2016$. It instructs the system to explicitly state the historical boundary of his lifetime before offering extrapolative analysis based strictly on his core philosophies.
+### ADR-04: Why NOT a Prompt-Only Chatbot (Without RAG)?
+* **Honest Reason (Avoiding Made-Up Quotes)**:
+  - Without RAG grounding, an LLM pretending to be Lee Kuan Yew will make up fake book quotes and wrong page numbers. Using a similarity threshold ($0.35$) ensures the bot either answers from actual book passages with real page citations or honestly says it has no record on the topic.
 
 ---
 
-### ADR-05: Why BAAI/bge-small-en-v1.5 Over Proprietary Cloud Embeddings?
-* **Cost & Determinism**:
-  - Proprietary embedding APIs (e.g., OpenAI `text-embedding-3-small`) can change underlying weights without notice, invalidating pre-computed vector indices.
-  - Open-weights `BAAI/bge-small-en-v1.5` runs deterministically offline or in containers with zero per-query API bills.
-* **Compact Dimensionality**:
-  - At 384 dimensions, vector dot-products take $75\%$ less RAM and compute cycles compared to 1536-dimensional vectors with zero measurable drop in top-5 retrieval precision on this corpus.
+### ADR-05: Why Post-2015 Temporal Detection?
+* **Honest Reason (Historical Accuracy)**:
+  - Lee Kuan Yew passed away in March 2015. If someone asks about modern topics like ChatGPT or COVID-19, the bot should not pretend he was alive for them—it explicitly notes the event happened after his lifetime before inferring a view from his past principles.
 
 ---
 
-### ADR-06: Why Compressed `.npz` Over Raw JSON Artifacts?
-* **The Problem Identified During Deployment**:
-  - The raw JSON files totaled $71.8\text{ MB}$ of ASCII numbers on disk. When loaded into Python dictionaries, memory expanded to $>300\text{ MB}$ and took $12\text{ seconds}$ to parse, crashing free-tier container memory limits.
-* **The Optimization**:
-  - Saving the pre-normalized matrix in `index.npz` reduced disk footprint to **$8.2\text{ MB}$**.
-  - `np.load()` loads directly into a contiguous C-memory buffer in **$5\text{ ms}$**, eliminating container startup timeouts and Out-Of-Memory (OOM) failures completely.
+### ADR-06: Why `BAAI/bge-small-en-v1.5` + Compressed `.npz` Instead of Paid Embedding APIs & Raw JSON?
+* **Honest Reason (Free & Low RAM)**:
+  - Using open-source `BAAI/bge-small-en-v1.5` and Gemini Flash-Lite keeps API costs at **\$0**.
+  - Compressing the embeddings from raw JSON ($71.8\text{ MB}$) into binary `index.npz` ($8.2\text{ MB}$) prevents free-tier servers from running out of RAM on startup.
 
 ---
 
 ## 4. Production Observability & Evaluation Rigor
 
-The project includes an automated evaluation suite ([`app/evaluation`](file:///c:/Users/fgcyb/OneDrive/Documents/Dev/submision/99-Group-Graduate-Program_Lee-Kuan-Yew-Chatbot/app/evaluation)) evaluating **60 golden queries** across historical accuracy, persona consistency, and refusal calibration.
+The project includes an automated evaluation suite ([`app/evaluation`](./app/evaluation)) evaluating **60 golden queries** across historical accuracy, persona consistency, and refusal calibration.
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
