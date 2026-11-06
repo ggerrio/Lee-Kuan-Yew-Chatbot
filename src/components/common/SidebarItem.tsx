@@ -22,17 +22,17 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
     <button
       onClick={onClick}
       className={cn(
-        'group flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150 text-left select-none',
+        'group flex w-full items-center justify-between rounded-sm border-l-2 px-3 py-2 font-sans text-xs font-medium transition-colors duration-150 text-left select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
         active
-          ? 'bg-primary/10 text-primary font-semibold'
-          : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground',
+          ? 'border-l-primary bg-card text-foreground font-semibold'
+          : 'border-l-transparent text-muted-foreground hover:border-l-border hover:bg-surface-hover/70 hover:text-foreground',
         className
       )}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <span
           className={cn(
-            'h-4 w-4 shrink-0 transition-colors',
+            'h-3.5 w-3.5 shrink-0 transition-colors duration-150',
             active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
           )}
         >
@@ -41,7 +41,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
         <span className="truncate">{label}</span>
       </div>
       {badge !== undefined && (
-        <span className="ml-2 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="ml-2 shrink-0 rounded-sm border border-border bg-secondary px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-muted-foreground">
           {badge}
         </span>
       )}

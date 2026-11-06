@@ -2,10 +2,12 @@ import React from 'react';
 
 export const TypingIndicator: React.FC = () => {
   return (
-    <div className="flex items-center gap-1 px-3 py-2 text-muted-foreground">
-      <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.3s]" />
-      <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce [animation-delay:-0.15s]" />
-      <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" />
+    <div
+      aria-live="polite"
+      className="flex items-center gap-2 px-1 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+    >
+      <span className="h-1.5 w-1.5 rounded-sm bg-primary animate-pulse motion-reduce:animate-none" />
+      <span>SEARCHING ARCHIVAL INDEX &amp; SYNTHESIZING RESPONSE...</span>
     </div>
   );
 };

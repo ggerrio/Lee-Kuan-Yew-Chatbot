@@ -2,13 +2,11 @@ import React from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  MessageSquare,
+  FileText,
   Plus,
   Settings,
   Info,
-  Sparkles,
   ChevronLeft,
-  Search,
   BookOpen,
   Menu,
 } from 'lucide-react';
@@ -17,6 +15,7 @@ import { useChatStore } from '@/store/useChatStore';
 import { useMobile } from '@/hooks/useMobile';
 import { Button } from '@/components/ui/button';
 import { SidebarItem } from '@/components/common/SidebarItem';
+import { ThemeToggle } from '@/components/common/ThemeToggle';
 
 export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -42,6 +41,13 @@ export const MainLayout: React.FC = () => {
     }
   };
 
+  const currentRouteTitle =
+    location.pathname === '/settings'
+      ? 'Reading Room Settings'
+      : location.pathname === '/about'
+      ? 'Archival Methodology & Corpus'
+      : 'Archival Reference Folio';
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground">
       {/* Mobile Drawer Overlay Backdrop */}
@@ -51,31 +57,34 @@ export const MainLayout: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs"
+            className="fixed inset-0 z-40 bg-black/50"
           />
         )}
       </AnimatePresence>
 
-      {/* Responsive Sidebar (Desktop Fixed / Mobile Drawer) */}
+      {/* Responsive Sidebar (Left Archival Ledger) */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-card transition-all duration-300 md:static overflow-hidden ${
-          sidebarOpen ? 'w-72 translate-x-0 border-r' : '-translate-x-full md:w-0 md:translate-x-0'
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-secondary transition-all duration-200 md:static overflow-hidden shrink-0 ${
+          sidebarOpen ? 'w-72 translate-x-0 border-r border-border' : '-translate-x-full md:w-0 md:translate-x-0'
         }`}
       >
-        {/* Sidebar Header */}
-        <div className="flex h-16 items-center justify-between border-b px-4 shrink-0">
+        {/* Sidebar Institutional Masthead */}
+        <div className="flex h-14 items-center justify-between border-b border-border px-4 shrink-0 bg-card/60">
           <div
             onClick={() => navigate('/')}
-            className="flex items-center gap-2.5 font-bold text-base cursor-pointer select-none"
+            className="flex items-center gap-3 cursor-pointer select-none min-w-0"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs">
-              <Sparkles className="h-4 w-4" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-primary/30 bg-primary text-primary-foreground font-serif text-xs font-semibold tracking-wider">
+              LKY
             </div>
-            <div className="flex flex-col">
-              <span className="leading-none">LKY AI</span>
-              <span className="text-[10px] font-normal text-muted-foreground mt-0.5">
-                Chatbot Foundation
+            <div className="flex flex-col min-w-0">
+              <span className="font-serif text-base font-medium leading-tight tracking-tight text-foreground truncate">
+                Lee Kuan Yew
+              </span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground mt-0.5 truncate">
+                Historical Archive
               </span>
             </div>
           </div>
@@ -84,36 +93,39 @@ export const MainLayout: React.FC = () => {
             variant="ghost"
             size="icon"
             onClick={toggleSidebar}
-            className="h-8 w-8 text-muted-foreground"
-            title="Collapse Sidebar"
+            className="h-8 w-8 rounded-sm text-muted-foreground hover:text-foreground shrink-0"
+            title="Collapse Archival Ledger"
+            aria-label="Collapse Sidebar"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* New Chat Trigger */}
-        <div className="p-3 shrink-0">
+        {/* New Inquiry Trigger */}
+        <div className="p-3 border-b border-border/60 shrink-0">
           <Button
             onClick={handleNewChat}
-            className="w-full justify-start gap-2.5 rounded-xl bg-primary text-primary-foreground shadow-xs hover:bg-primary/90"
+            className="w-full justify-start gap-2.5 rounded-sm bg-primary text-primary-foreground font-mono text-xs font-medium uppercase tracking-wider h-9 px-3"
           >
-            <Plus className="h-4.5 w-4.5" />
-            <span className="font-semibold text-sm">New Conversation</span>
+            <Plus className="h-4 w-4 shrink-0" />
+            <span>New Inquiry Dossier</span>
           </Button>
         </div>
 
-        {/* Recent Conversations List */}
-        <div className="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+        {/* Chronological Inquiry Ledger */}
+        <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4">
           <div>
-            <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
-              <span>Recent Conversations</span>
-              <Search className="h-3 w-3 text-muted-foreground/60" />
+            <div className="px-2 pb-2 border-b border-border/60 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground flex items-center justify-between">
+              <span>Inquiry Ledger</span>
+              <span className="tabular-nums text-[10px] text-muted-foreground/80">
+                [{String(conversations.length).padStart(2, '0')}]
+              </span>
             </div>
-            <div className="space-y-1 mt-1">
+            <div className="space-y-1 mt-2">
               {conversations.map((conv) => (
                 <SidebarItem
                   key={conv.id}
-                  icon={<MessageSquare className="h-4 w-4" />}
+                  icon={<FileText className="h-3.5 w-3.5" />}
                   label={conv.title}
                   active={location.pathname === '/' && activeConversationId === conv.id}
                   onClick={() => handleSelectConv(conv.id)}
@@ -123,10 +135,13 @@ export const MainLayout: React.FC = () => {
           </div>
         </div>
 
-        {/* Navigation & Footer Links */}
-        <div className="border-t p-3 space-y-1 shrink-0 bg-muted/20">
+        {/* Institutional Navigation & Colophon Footer */}
+        <div className="border-t border-border p-3 space-y-1 shrink-0 bg-card/50">
+          <div className="px-2 pb-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
+            Archive Sections
+          </div>
           <SidebarItem
-            icon={<BookOpen className="h-4 w-4" />}
+            icon={<BookOpen className="h-3.5 w-3.5" />}
             label="Chat Interface"
             active={location.pathname === '/'}
             onClick={() => {
@@ -135,7 +150,7 @@ export const MainLayout: React.FC = () => {
             }}
           />
           <SidebarItem
-            icon={<Settings className="h-4 w-4" />}
+            icon={<Settings className="h-3.5 w-3.5" />}
             label="Settings"
             active={location.pathname === '/settings'}
             onClick={() => {
@@ -144,7 +159,7 @@ export const MainLayout: React.FC = () => {
             }}
           />
           <SidebarItem
-            icon={<Info className="h-4 w-4" />}
+            icon={<Info className="h-3.5 w-3.5" />}
             label="About"
             active={location.pathname === '/about'}
             onClick={() => {
@@ -152,24 +167,43 @@ export const MainLayout: React.FC = () => {
               if (isMobile) setSidebarOpen(false);
             }}
           />
-          <div className="pt-2 pb-1 text-center text-[11px] font-medium text-muted-foreground/70 border-t border-border/40 mt-1">
-            Built by <span className="font-semibold text-foreground/80">Gerrio Pratama</span>
+          <div className="pt-2.5 pb-0.5 px-2 flex items-center justify-between font-mono text-[10px] text-muted-foreground border-t border-border/60 mt-2">
+            <span>CURATED BY GERRIO PRATAMA</span>
+            <span className="tabular-nums">1959–2015</span>
           </div>
         </div>
       </aside>
 
-      {/* Main Viewport Content Area */}
-      <div className="flex flex-1 flex-col overflow-hidden relative">
-        {!sidebarOpen && location.pathname !== '/' && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={toggleSidebar}
-            className="absolute top-4 left-4 z-40 h-9 w-9 rounded-xl shadow-xs bg-card border hover:bg-muted shrink-0 hidden md:flex items-center justify-center"
-            title="Expand Sidebar"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
+      {/* Main Viewport Reading Stage */}
+      <div className="flex flex-1 flex-col overflow-hidden relative min-w-0">
+        {location.pathname !== '/' && (
+          <header className="flex h-14 items-center justify-between border-b border-border bg-card/90 px-4 md:px-6 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              {(!sidebarOpen || isMobile) && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleSidebar}
+                  className="h-8 w-8 rounded-sm shrink-0 text-muted-foreground hover:text-foreground"
+                  title="Open Archival Ledger"
+                  aria-label="Toggle Navigation"
+                >
+                  <Menu className="h-4 w-4" />
+                </Button>
+              )}
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-primary font-medium hidden sm:inline">
+                  FOLIO //
+                </span>
+                <h1 className="font-serif text-base md:text-lg font-medium tracking-tight text-foreground truncate">
+                  {currentRouteTitle}
+                </h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <ThemeToggle />
+            </div>
+          </header>
         )}
         <Outlet />
       </div>

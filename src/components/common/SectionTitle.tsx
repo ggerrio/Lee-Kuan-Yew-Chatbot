@@ -15,12 +15,26 @@ export const SectionTitle: React.FC<SectionTitleProps> = ({
   action,
 }) => {
   return (
-    <div className={cn('flex items-start justify-between pb-4 border-b mb-6', className)}>
+    <div
+      className={cn(
+        'flex items-start justify-between border-t-2 border-t-foreground/80 border-b border-b-border pt-4 pb-4 mb-6',
+        className
+      )}
+    >
       <div>
-        <h2 className="text-xl font-bold tracking-tight">{title}</h2>
-        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+        <div className="font-mono text-[10px] font-medium uppercase tracking-[0.12em] text-primary mb-1">
+          ARCHIVAL RECORD FOLIO
+        </div>
+        <h2 className="font-serif text-2xl md:text-3xl font-medium tracking-tight text-foreground">
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="font-sans text-sm text-muted-foreground mt-1.5 leading-relaxed max-w-2xl">
+            {subtitle}
+          </p>
+        )}
       </div>
-      {action && <div>{action}</div>}
+      {action && <div className="shrink-0 ml-4">{action}</div>}
     </div>
   );
 };

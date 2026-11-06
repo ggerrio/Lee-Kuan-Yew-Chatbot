@@ -19,31 +19,47 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
   onSelectPrompt,
   onRetry,
 }) => {
-  const containerRef = useAutoScroll<HTMLDivElement>([messages, isGenerating]);
+  // A session is in its initial discovery state when no user inquiry has been submitted yet
+  // (either messages is empty after clearMessages, or contains only the initial 'msg-greeting').
+  const hasUserInquiries = messages.some((m) => m.role === 'user');
+  const showDiscoveryState =
+    messages.length === 0 ||
+    (!hasUserInquiries && messages.length === 1 && messages[0].id === 'msg-greeting');
 
-  if (messages.length === 0) {
-    return (
-      <div className="flex-1 overflow-y-auto p-4 md:p-6">
-        <EmptyState onSelectPrompt={onSelectPrompt} />
-      </div>
-    );
-  }
+  const containerRef = useAutoScroll<HTMLDivElement>([
+    hasUserInquiries ? messages : null,
+    isGenerating,
+  ]);
+
+  React.useEffect(() => {
+    if (showDiscoveryState && !isGenerating && containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [showDiscoveryState, isGenerating, containerRef]);
 
   return (
     <div
       ref={containerRef}
-      className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 max-w-4xl mx-auto w-full"
+      className="flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-5"
     >
-      {messages.map((message) => (
-        <MessageBubble key={message.id} message={message} onRetry={onRetry} />
-      ))}
+      <div className="mx-auto w-full max-w-3xl space-y-5">
+        {showDiscoveryState && <EmptyState onSelectPrompt={onSelectPrompt} />}
 
-      {isGenerating && (
-        <div className="space-y-3">
-          <LoadingSkeleton />
-          <TypingIndicator />
-        </div>
-      )}
+        {messages.length > 0 && (
+          <div className="space-y-5">
+            {messages.map((message) => (
+              <MessageBubble key={message.id} message={message} onRetry={onRetry} />
+            ))}
+          </div>
+        )}
+
+        {isGenerating && (
+          <div className="space-y-3 pt-1">
+            <LoadingSkeleton />
+            <TypingIndicator />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

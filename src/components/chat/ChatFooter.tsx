@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paperclip, Square, ArrowUp } from 'lucide-react';
+import { Square, ArrowUp, CornerDownLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 
@@ -35,62 +35,60 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({
   };
 
   return (
-    <div className="border-t bg-card/80 backdrop-blur-xs p-3 md:p-4 shrink-0">
-      <form onSubmit={handleSubmit} className="mx-auto max-w-4xl space-y-2">
-        <div className="relative flex items-end rounded-2xl border border-input bg-background shadow-xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all p-2">
-          {/* File Attachment Placeholder */}
-          <Tooltip content="Attachment disabled in Phase 1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled
-              className="h-9 w-9 text-muted-foreground shrink-0 rounded-xl"
-            >
-              <Paperclip className="h-4 w-4" />
-            </Button>
-          </Tooltip>
+    <footer className="border-t border-border bg-secondary/50 px-3 py-2.5 sm:px-4 sm:py-3 md:px-6 md:py-3.5 shrink-0">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-1.5">
+        <div className="relative flex items-center gap-2 rounded-sm border border-border bg-card px-2.5 py-1.5 sm:px-3 sm:py-2 transition-colors duration-150 focus-within:border-primary focus-within:ring-1 focus-within:ring-ring/30">
+          {/* Archival Inquiry Prefix */}
+          <div className="hidden sm:flex items-center h-7 px-1.5 font-mono text-[10px] font-medium uppercase tracking-widest text-muted-foreground select-none shrink-0 border-r border-border/70 pr-2.5">
+            INQUIRY
+          </div>
 
           {/* Multiline Text Input */}
           <textarea
             value={input}
             onChange={(e) => onChangeInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Lee Kuan Yew about governance, economy, diplomacy..."
+            placeholder="Submit an inquiry on governance, economic strategy, foreign policy, or bilingualism..."
             rows={1}
-            className="flex-1 max-h-32 min-h-[40px] resize-none bg-transparent px-2 py-2 text-sm placeholder:text-muted-foreground focus:outline-none"
+            className="flex-1 max-h-32 h-7 sm:min-h-[30px] resize-none overflow-y-auto bg-transparent px-1 py-1 font-sans text-xs sm:text-sm text-foreground leading-snug placeholder:text-muted-foreground placeholder:truncate focus:outline-none"
           />
 
           {/* Action Button: Send or Stop */}
           {isGenerating ? (
-            <Tooltip content="Stop Generation (Placeholder)">
+            <Tooltip content="Interrupt Synthesis">
               <Button
                 type="button"
-                size="icon"
+                size="sm"
                 onClick={onStop}
                 variant="destructive"
-                className="h-9 w-9 shrink-0 rounded-xl"
+                className="h-7 sm:h-8 px-2.5 shrink-0 rounded-sm font-mono text-[10px] uppercase tracking-wider gap-1.5"
               >
-                <Square className="h-4 w-4 fill-current" />
+                <Square className="h-3 w-3 fill-current" />
+                <span className="hidden sm:inline">Stop</span>
               </Button>
             </Tooltip>
           ) : (
             <Button
               type="submit"
-              size="icon"
+              size="sm"
               disabled={!input.trim()}
-              className="h-9 w-9 shrink-0 rounded-xl bg-primary text-primary-foreground transition-all hover:opacity-90 disabled:opacity-40"
+              className="h-7 sm:h-8 px-2.5 sm:px-3 shrink-0 rounded-sm bg-primary text-primary-foreground font-mono text-[10px] uppercase tracking-wider gap-1.5 transition-colors disabled:opacity-40"
             >
-              <ArrowUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Submit</span>
+              <ArrowUp className="h-3.5 w-3.5" />
             </Button>
           )}
         </div>
 
-        <div className="flex items-center justify-between px-2 text-[11px] text-muted-foreground">
-          <span>Press Enter to send, Shift + Enter for new line</span>
-          <span>Phase 1 UI Shell</span>
+        <div className="flex items-center justify-between gap-2 px-0.5 font-mono text-[9px] sm:text-[10px] tracking-tight text-muted-foreground">
+          <span className="flex items-center gap-1 truncate">
+            <CornerDownLeft className="h-2.5 w-2.5 opacity-70 hidden sm:inline shrink-0" />
+            <span className="hidden sm:inline">ENTER TO SUBMIT · SHIFT + ENTER FOR NEW LINE</span>
+            <span className="sm:hidden">ENTER TO SUBMIT INQUIRY</span>
+          </span>
+          <span className="uppercase shrink-0">CORPUS: 1959–2015</span>
         </div>
       </form>
-    </div>
+    </footer>
   );
 };

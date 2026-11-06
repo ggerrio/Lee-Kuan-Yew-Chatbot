@@ -31,7 +31,7 @@ export const App: React.FC = () => {
       <Router>
         <Suspense
           fallback={
-            <div className="flex h-screen w-screen items-center justify-center bg-background text-muted-foreground text-sm">
+            <div className="flex h-screen w-screen items-center justify-center bg-background font-mono text-xs uppercase tracking-widest text-muted-foreground">
               Loading interface...
             </div>
           }

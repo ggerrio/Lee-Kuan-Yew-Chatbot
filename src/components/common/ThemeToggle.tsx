@@ -13,16 +13,24 @@ export const ThemeToggle: React.FC = () => {
     setTheme(themes[nextIndex]);
   };
 
+  const themeLabels: Record<Theme, string> = {
+    light: 'Warm Archival Paper (Light)',
+    dark: 'Evening Reading Room (Dark)',
+    system: 'System Default',
+  };
+
   return (
     <Button
       variant="ghost"
       size="icon"
       onClick={cycleTheme}
-      title={`Current theme: ${theme}. Click to switch.`}
+      className="h-8 w-8 rounded-sm border border-transparent hover:border-border text-muted-foreground hover:text-foreground"
+      title={`Reading mode: ${themeLabels[theme]}. Click to switch.`}
+      aria-label={`Current theme: ${theme}. Click to switch theme.`}
     >
-      {theme === 'light' && <Sun className="h-5 w-5 text-amber-500" />}
-      {theme === 'dark' && <Moon className="h-5 w-5 text-indigo-400" />}
-      {theme === 'system' && <Monitor className="h-5 w-5 text-muted-foreground" />}
+      {theme === 'light' && <Sun className="h-4 w-4 text-primary" />}
+      {theme === 'dark' && <Moon className="h-4 w-4 text-primary" />}
+      {theme === 'system' && <Monitor className="h-4 w-4 text-muted-foreground" />}
     </Button>
   );
 };

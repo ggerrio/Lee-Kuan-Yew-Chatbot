@@ -14,14 +14,20 @@ export const PageContainer: React.FC<PageContainerProps> = ({
 }) => {
   const maxWidthClasses = {
     sm: 'max-w-2xl',
-    md: 'max-w-4xl',
-    lg: 'max-w-5xl',
-    xl: 'max-w-6xl',
+    md: 'max-w-3xl',
+    lg: 'max-w-4xl',
+    xl: 'max-w-5xl',
     full: 'max-w-full',
   };
 
   return (
-    <div className={cn('mx-auto w-full h-full p-4 md:p-8', maxWidthClasses[maxWidth], className)}>
+    <div
+      className={cn(
+        'mx-auto w-full h-full px-5 py-6 md:px-8 md:py-10 bg-background text-foreground',
+        maxWidthClasses[maxWidth],
+        className
+      )}
+    >
       {children}
     </div>
   );

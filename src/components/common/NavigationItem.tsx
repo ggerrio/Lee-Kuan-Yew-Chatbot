@@ -20,15 +20,15 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
       to={to}
       className={({ isActive }) =>
         cn(
-          'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors select-none',
+          'flex items-center gap-2.5 rounded-sm border-l-2 px-3 py-2 font-sans text-xs font-medium transition-colors duration-150 select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
           isActive
-            ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+            ? 'border-l-primary bg-card text-foreground font-semibold'
+            : 'border-l-transparent text-muted-foreground hover:border-l-border hover:bg-surface-hover/70 hover:text-foreground',
           className
         )
       }
     >
-      <span className="h-4 w-4 shrink-0">{icon}</span>
+      <span className="h-3.5 w-3.5 shrink-0">{icon}</span>
       <span className="truncate">{label}</span>
     </NavLink>
   );

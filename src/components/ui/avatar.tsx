@@ -13,7 +13,7 @@ export const Avatar: React.FC<AvatarProps> = ({ src, alt, fallback, className, .
   return (
     <div
       className={cn(
-        'relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full border bg-muted flex items-center justify-center font-medium text-xs text-muted-foreground select-none',
+        'relative flex h-8 w-8 shrink-0 overflow-hidden rounded-sm border border-border bg-secondary flex items-center justify-center font-mono font-medium text-xs text-muted-foreground select-none',
         className
       )}
       {...props}

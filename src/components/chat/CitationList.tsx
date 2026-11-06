@@ -1,9 +1,23 @@
 import React from 'react';
-import { BookOpen, FileText, Calendar, Hash } from 'lucide-react';
+import { BookOpen } from 'lucide-react';
 import { CitationItem } from '@/types';
 
 interface CitationListProps {
   citations: CitationItem[];
+}
+
+/**
+ * Pure presentation helper that normalizes raw PDF filename artifacts
+ * (such as trailing "Compressed" or underscores) while strictly preserving
+ * the real source document title without inventing metadata.
+ */
+function formatArchivalTitle(rawTitle: string): string {
+  if (!rawTitle) return 'Archival Source Document';
+  return rawTitle
+    .replace(/_/g, ' ')
+    .replace(/\s+Compressed$/i, '')
+    .replace(/\bLee Kwan Yew\b/gi, 'Lee Kuan Yew')
+    .trim();
 }
 
 export const CitationList: React.FC<CitationListProps> = ({ citations }) => {
@@ -12,43 +26,71 @@ export const CitationList: React.FC<CitationListProps> = ({ citations }) => {
   }
 
   return (
-    <div className="mt-3 pt-3 border-t border-border/60 space-y-2">
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-        <BookOpen className="h-3.5 w-3.5 text-primary/80" />
-        <span>Source Citations ({citations.length})</span>
+    <section
+      aria-label="Verified Archival Sources"
+      className="mt-5 pt-4 border-t border-border space-y-3"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <BookOpen className="h-3.5 w-3.5 text-primary shrink-0" />
+          <span>VERIFIED ARCHIVAL SOURCES ({citations.length})</span>
+        </div>
+        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/80 tabular-nums">
+          BIBLIOGRAPHIC INDEX
+        </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {citations.map((cite, index) => (
-          <div
-            key={`${cite.document_title}-${cite.page_number}-${index}`}
-            className="flex flex-col p-2.5 rounded-xl bg-muted/40 border border-border/50 text-xs transition-colors hover:bg-muted/70"
-          >
-            <div className="font-medium text-foreground line-clamp-1" title={cite.document_title}>
-              {cite.document_title}
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        {citations.map((cite, index) => {
+          const indexLabel = String(index + 1).padStart(2, '0');
+          const displayTitle = formatArchivalTitle(cite.document_title);
+          const hasValidScore = typeof cite.score === 'number' && !Number.isNaN(cite.score);
 
-            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[11px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-secondary text-secondary-foreground font-medium capitalize">
-                <FileText className="h-3 w-3" />
-                {cite.document_type}
-              </span>
-
-              {cite.year && (
-                <span className="inline-flex items-center gap-1">
-                  <Calendar className="h-3 w-3 opacity-70" />
-                  {cite.year}
+          return (
+            <div
+              key={`${cite.document_title}-${cite.page_number}-${index}`}
+              className="group flex flex-col justify-between rounded-sm border border-border border-l-2 border-l-primary/60 bg-secondary/45 p-3 transition-colors duration-150 hover:border-foreground/30 hover:border-l-primary hover:bg-secondary/80"
+            >
+              <div className="flex items-start gap-2">
+                <span className="font-mono text-[11px] font-semibold text-primary tabular-nums shrink-0 mt-0.5">
+                  [{indexLabel}]
                 </span>
-              )}
+                <div
+                  className="font-sans text-xs font-semibold text-foreground leading-snug break-words"
+                  title={cite.document_title}
+                >
+                  {displayTitle}
+                </div>
+              </div>
 
-              <span className="inline-flex items-center gap-0.5 ml-auto text-muted-foreground/80 font-mono">
-                <Hash className="h-3 w-3 opacity-70" />
-                p. {cite.page_number}
-              </span>
+              <div className="mt-2.5 pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground tabular-nums">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {cite.document_type && (
+                    <span className="rounded-sm bg-background/80 border border-border/70 px-1.5 py-0.5 font-medium text-foreground/85">
+                      {cite.document_type}
+                    </span>
+                  )}
+                  {cite.year && <span>· {cite.year}</span>}
+                </div>
+
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="font-semibold text-foreground/85">
+                    P. {cite.page_number}
+                  </span>
+                  {hasValidScore && (
+                    <span
+                      className="text-muted-foreground"
+                      title="Cosine retrieval similarity score"
+                    >
+                      · SIM: {cite.score.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </div>
+    </section>
   );
 };

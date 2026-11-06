@@ -12,9 +12,9 @@ export const SettingsPage: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
   const themes: { id: Theme; label: string; icon: React.ReactNode }[] = [
-    { id: 'light', label: 'Light', icon: <Sun className="h-4 w-4 text-amber-500" /> },
-    { id: 'dark', label: 'Dark', icon: <Moon className="h-4 w-4 text-indigo-400" /> },
-    { id: 'system', label: 'System', icon: <Monitor className="h-4 w-4 text-muted-foreground" /> },
+    { id: 'light', label: 'Light', icon: <Sun className="h-4 w-4" /> },
+    { id: 'dark', label: 'Dark', icon: <Moon className="h-4 w-4" /> },
+    { id: 'system', label: 'System', icon: <Monitor className="h-4 w-4" /> },
   ];
 
   return (
@@ -26,18 +26,21 @@ export const SettingsPage: React.FC = () => {
 
       <div className="space-y-6">
         {/* Appearance Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Appearance & Theme</CardTitle>
+        <Card className="border-l-2 border-l-primary/75">
+          <CardHeader className="pb-3 border-b border-border/60">
+            <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              SECTION 01 // READING SURFACE PALETTE
+            </div>
+            <CardTitle className="text-lg">Appearance &amp; Theme</CardTitle>
             <CardDescription>Select your preferred visual mode for the interface.</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center gap-3">
+          <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {themes.map((t) => (
               <Button
                 key={t.id}
                 variant={theme === t.id ? 'default' : 'outline'}
                 onClick={() => setTheme(t.id)}
-                className="flex-1 gap-2 rounded-xl"
+                className="w-full gap-2 rounded-sm font-mono text-xs uppercase tracking-wider"
               >
                 {t.icon}
                 <span>{t.label}</span>
@@ -46,32 +49,35 @@ export const SettingsPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* AI Model & System Settings Placeholder */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">AI Engine & Vector Config (Phase 2 Preview)</CardTitle>
+        {/* AI Model & System Settings */}
+        <Card className="border-l-2 border-l-primary/75">
+          <CardHeader className="pb-3 border-b border-border/60">
+            <div className="mb-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+              SECTION 02 // ARCHIVAL RETRIEVAL SPECIFICATIONS
+            </div>
+            <CardTitle className="text-lg">AI Engine &amp; Vector Config (Phase 2 Preview)</CardTitle>
             <CardDescription>Target RAG framework parameters configured for future phases.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between border-b pb-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Cpu className="h-4 w-4 text-primary" />
+          <CardContent className="pt-4 space-y-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3">
+              <div className="flex items-center gap-2.5 font-sans text-sm font-medium text-foreground">
+                <Cpu className="h-4 w-4 text-primary shrink-0" />
                 <span>Primary LLM Provider</span>
               </div>
               <Badge variant="outline">Gemini 3.5 Flash Lite</Badge>
             </div>
 
-            <div className="flex items-center justify-between border-b pb-3">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Database className="h-4 w-4 text-primary" />
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/70 pb-3">
+              <div className="flex items-center gap-2.5 font-sans text-sm font-medium text-foreground">
+                <Database className="h-4 w-4 text-primary shrink-0" />
                 <span>Vector Database Engine</span>
               </div>
               <Badge variant="outline">Qdrant Local / Cloud</Badge>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2.5 font-sans text-sm font-medium text-foreground">
+                <ShieldCheck className="h-4 w-4 text-success shrink-0" />
                 <span>Fact Grounding Guardrails</span>
               </div>
               <Badge variant="success">Strict Context Only</Badge>
