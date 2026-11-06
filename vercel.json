@@ -2,7 +2,8 @@
   "functions": {
     "api/index.py": {
       "maxDuration": 60,
-      "includeFiles": "{app/**,processed/embeddings/**}"
+      "includeFiles": "{app/**,processed/embeddings/**}",
+      "excludeFiles": "{node_modules/**,dist/**,src/**,public/**,knowledge/**,processed/chunks/**,processed/metadata/**,.git/**,**/__pycache__/**}"
     }
   },
   "rewrites": [
@@ -40,4 +41,3 @@
     }
   ]
 }
-
