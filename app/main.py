@@ -1,4 +1,5 @@
 import asyncio
+import os
 import traceback
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
@@ -49,7 +50,8 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Database initialization non-fatal error: {exc}")
 
     # Schedule background warmup so port 8000 is open INSTANTLY (< 50ms)
-    asyncio.create_task(_background_warmup())
+    if not os.environ.get("VERCEL"):
+        asyncio.create_task(_background_warmup())
 
     yield
 
@@ -91,6 +93,7 @@ app.add_middleware(
 
 # API v1 Router Integration
 app.include_router(api_router, prefix="/api/v1")
+app.include_router(api_router, prefix="/v1", include_in_schema=False)
 
 # Root endpoint for container health probes and root traffic
 @app.get("/", tags=["Health"], summary="Root Endpoint")

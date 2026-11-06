@@ -1,11 +1,13 @@
 import axios, { AxiosError } from 'axios';
 import { ChatRequest, ChatResponseData, ApiResponse } from '@/types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://leekuanyewchatbot-rdsqt5yv.back4.app';
-
-if (import.meta.env.PROD && !import.meta.env.VITE_API_BASE_URL) {
-  console.warn('[Deployment Warning] VITE_API_BASE_URL is not set in environment settings. Defaulting to http://localhost:8000.');
-}
+const rawEnvUrl = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  rawEnvUrl && !rawEnvUrl.includes('.back4.app')
+    ? rawEnvUrl
+    : import.meta.env.PROD
+      ? ''
+      : 'http://localhost:8000';
 
 export const chatApiClient = axios.create({
   baseURL: API_BASE_URL,

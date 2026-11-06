@@ -3,7 +3,7 @@
 > Author: Senior AI & Machine Learning Systems Engineering Team  
 > Repository: [github.com/ggerrio/Lee-Kuan-Yew-Chatbot](https://github.com/ggerrio/Lee-Kuan-Yew-Chatbot)  
 > Live Production UI: [99-group-graduate-program-lee-kuan.vercel.app](https://99-group-graduate-program-lee-kuan.vercel.app)  
-> Live Backend API: [leekuanyewchatbot-rdsqt5yv.back4.app](https://leekuanyewchatbot-rdsqt5yv.back4.app)
+> Live Backend API: [99-group-graduate-program-lee-kuan.vercel.app/health](https://99-group-graduate-program-lee-kuan.vercel.app/health)
 
 ---
 

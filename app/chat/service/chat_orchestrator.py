@@ -23,6 +23,8 @@ class ChatOrchestrator:
 
     def _load_prompt_template(self) -> str:
         template_path = Path("app/rag/prompt_templates/persona_prompt.txt")
+        if not template_path.exists():
+            template_path = Path(__file__).resolve().parents[2] / "rag" / "prompt_templates" / "persona_prompt.txt"
         if template_path.exists():
             try:
                 return template_path.read_text(encoding="utf-8")

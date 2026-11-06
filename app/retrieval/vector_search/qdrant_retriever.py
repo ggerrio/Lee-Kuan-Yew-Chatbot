@@ -21,8 +21,13 @@ class LocalVectorRetriever:
     over pre-computed 5,772 document embeddings from /processed/embeddings/.
     """
     def __init__(self, processed_dir: Optional[Path] = None):
-        # Resolve processed_dir from settings if not explicitly provided
-        self.processed_dir = processed_dir or Path(getattr(settings, "PROCESSED_DIR", "processed"))
+        # Resolve processed_dir from settings if not explicitly provided, with project-root fallback for serverless
+        default_dir = Path(getattr(settings, "PROCESSED_DIR", "processed"))
+        if not default_dir.exists():
+            repo_root_candidate = Path(__file__).resolve().parents[3] / "processed"
+            if repo_root_candidate.exists():
+                default_dir = repo_root_candidate
+        self.processed_dir = processed_dir or default_dir
         self.embeddings_dir = self.processed_dir / "embeddings"
         self.embedder = QueryEmbedder()
         self.local_cache: List[Dict[str, Any]] = []

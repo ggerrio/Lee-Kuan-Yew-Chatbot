@@ -4,8 +4,8 @@
 > Author: **Gerrio Pratama** | Senior AI Systems & Engineering Architecture  
 > 
 > 🌐 **Production Web Client**: [99-group-graduate-program-lee-kuan.vercel.app](https://99-group-graduate-program-lee-kuan.vercel.app)  
-> ⚡ **High-Performance API**: [leekuanyewchatbot-rdsqt5yv.back4.app](https://leekuanyewchatbot-rdsqt5yv.back4.app)  
-> 📖 **Interactive Swagger Docs**: [leekuanyewchatbot-rdsqt5yv.back4.app/docs](https://leekuanyewchatbot-rdsqt5yv.back4.app/docs)  
+> ⚡ **High-Performance API**: [99-group-graduate-program-lee-kuan.vercel.app/health](https://99-group-graduate-program-lee-kuan.vercel.app/health)  
+> 📖 **Interactive Swagger Docs**: [99-group-graduate-program-lee-kuan.vercel.app/docs](https://99-group-graduate-program-lee-kuan.vercel.app/docs)  
 > 📑 **Deep-Dive Engineering Whitepaper**: [`Inside Project Lee Kuan Yew.md`](./Inside%20Project%20Lee%20Kuan%20Yew.md)
 
 ---

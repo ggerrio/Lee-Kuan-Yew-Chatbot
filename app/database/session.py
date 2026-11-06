@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Generator
 from sqlalchemy import create_engine, text
@@ -7,6 +8,9 @@ from app.core.config.settings import settings
 from app.core.logging.logger import logger
 
 db_url = (settings.DATABASE_URL or "").strip()
+
+if os.environ.get("VERCEL") and (not db_url or db_url == "sqlite:///./lky_chatbot.db"):
+    db_url = "sqlite:////tmp/lky_chatbot.db"
 
 if not db_url:
     logger.warning("DATABASE_URL is not set. Falling back to default 'sqlite:///./lky_chatbot.db'.")
