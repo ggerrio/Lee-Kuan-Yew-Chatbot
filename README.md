@@ -182,6 +182,6 @@ python -m app.evaluation.runners.run_eval
 ## 8. Author & Submission Metadata
 
 * **Author**: Gerrio Pratama
-* **Role**: Candidate for 99 Group Graduate Program (AI Engineer)
+* **Role**: Candidate for 99 Group MAGANGHUB (AI Engineer)
 * **Challenge**: Section 3 — *"What Would Lee Kuan Yew Do?"* AI Engineering Challenge
 * **Version**: `v1.0.0 (Production Optimized)`
